@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خدماتنا | Future Key</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00ff88;
+            --primary-dark: #00cc6a;
+            --secondary: #00d4aa;
+            --bg-dark: #050505;
+            --bg-card: #0a0a0a;
+            --bg-card-light: #111111;
+            --text-muted: #666;
+            --border-subtle: rgba(255,255,255,0.06);
+            --border-glow: rgba(0,255,136,0.15);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tajawal', sans-serif; background: var(--bg-dark); color: #fff; }
+        .reveal { opacity: 0; transform: translateY(60px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        .navbar { 
+            position: fixed; top: 0; width: 100%; padding: 16px 5%; 
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 1000; background: rgba(5,5,5,0.85); backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border-subtle); transition: all 0.4s ease;
+        }
+        .navbar.scrolled { padding: 12px 5%; background: rgba(5,5,5,0.95); box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
+        .logo { 
+            display: flex; align-items: center; gap: 14px;
+            font-size: 26px; font-weight: 900; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        .logo-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: #000; font-weight: 900;
+            box-shadow: 0 4px 20px rgba(0,255,136,0.25);
+        }
+        .nav-links { display: flex; gap: 40px; list-style: none; align-items: center; }
+        .nav-links a { color: #aaa; text-decoration: none; font-weight: 500; transition: 0.3s; position: relative; font-size: 0.95rem; }
+        .nav-links a:hover { color: #fff; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -6px; right: 0; width: 0; height: 2px; background: var(--primary); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 2px; }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a.active { color: var(--primary); }
+        .nav-links a.active::after { width: 100%; }
+        .mobile-menu-btn { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+        
+        .page-header { 
+            padding: 160px 5% 100px; text-align: center; 
+            background: radial-gradient(ellipse at 50% 0%, #0a1f0a 0%, var(--bg-dark) 60%);
+            position: relative; overflow: hidden;
+        }
+        .page-header::before {
+            content: ''; position: absolute; width: 600px; height: 600px; 
+            background: radial-gradient(circle, rgba(0,255,136,0.05) 0%, transparent 70%);
+            top: -200px; left: 50%; transform: translateX(-50%);
+        }
+        .page-header h1 { font-size: 3.5rem; font-weight: 900; margin-bottom: 20px; position: relative; z-index: 2; }
+        .page-header h1 span { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header p { color: #666; font-size: 1.2rem; max-width: 600px; margin: 0 auto; position: relative; z-index: 2; line-height: 1.8; }
+        
+        .services-detailed { padding: 100px 5%; max-width: 1200px; margin: 0 auto; }
+        .service-item {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+            margin-bottom: 100px; padding: 60px; background: linear-gradient(145deg, var(--bg-card-light), var(--bg-card));
+            border-radius: 32px; border: 1px solid var(--border-subtle); position: relative; overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .service-item:hover { border-color: var(--border-glow); box-shadow: 0 30px 60px rgba(0,0,0,0.4); }
+        .service-item::before {
+            content: ''; position: absolute; top: 0; right: 0; width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(0,255,136,0.03) 0%, transparent 70%);
+        }
+        .service-item:nth-child(even) { direction: ltr; }
+        .service-item:nth-child(even) > * { direction: rtl; }
+        .service-icon-wrap {
+            width: 120px; height: 120px; border-radius: 32px;
+            background: linear-gradient(135deg, rgba(0,255,136,0.08), rgba(0,212,170,0.03));
+            border: 1px solid rgba(0,255,136,0.1);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto;
+        }
+        .service-icon { font-size: 3rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .service-content h2 { font-size: 2.2rem; margin-bottom: 25px; color: var(--primary); font-weight: 800; }
+        .service-content p { color: #666; line-height: 2.2; margin-bottom: 30px; font-size: 1.1rem; }
+        .service-features { list-style: none; }
+        .service-features li { padding: 14px 0; color: #aaa; display: flex; align-items: center; gap: 15px; font-size: 1.05rem; }
+        .service-features li i { 
+            width: 24px; height: 24px; border-radius: 6px;
+            background: rgba(0,255,136,0.1); color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; flex-shrink: 0;
+        }
+        
+        .pricing { padding: 100px 5%; background: var(--bg-card); text-align: center; }
+        .section-label {
+            display: inline-block; padding: 8px 20px; background: rgba(0,255,136,0.08);
+            border: 1px solid rgba(0,255,136,0.15); border-radius: 50px;
+            font-size: 0.85rem; color: var(--primary); margin-bottom: 20px; letter-spacing: 1px;
+        }
+        .section-title { text-align: center; font-size: 3rem; margin-bottom: 20px; font-weight: 900; letter-spacing: -0.5px; }
+        .section-title span { color: var(--primary); }
+        .section-subtitle { text-align: center; color: #666; margin-bottom: 70px; font-size: 1.1rem; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; max-width: 1300px; margin: 0 auto; }
+        .pricing-card {
+            background: linear-gradient(145deg, var(--bg-card-light), var(--bg-card)); padding: 50px 25px; border-radius: 28px;
+            border: 1px solid var(--border-subtle); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); position: relative;
+        }
+        .pricing-card.featured { border-color: var(--border-glow); transform: scale(1.03); }
+        .pricing-card.featured::before {
+            content: 'الأكثر طلباً'; position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 8px 25px; border-radius: 25px;
+            font-size: 0.9rem; font-weight: 800; color: #000; box-shadow: 0 5px 20px rgba(0,255,136,0.25);
+        }
+        .pricing-card:hover { transform: translateY(-15px); border-color: var(--border-glow); box-shadow: 0 30px 60px rgba(0,0,0,0.4); }
+        .pricing-card.featured:hover { transform: scale(1.03) translateY(-15px); }
+        .pricing-card h3 { font-size: 1.3rem; margin-bottom: 10px; font-weight: 700; }
+        .pricing-card .subtitle { color: #555; font-size: 0.9rem; margin-bottom: 25px; }
+        .price { font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 20px 0; }
+        .price span { font-size: 1rem; color: #555; display: block; margin-top: 5px; }
+        .pricing-card ul { list-style: none; margin: 35px 0; text-align: right; }
+        .pricing-card ul li { padding: 12px 0; color: #888; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .pricing-card ul li i { color: var(--primary); font-size: 0.8rem; }
+        .pricing-card ul li.not-included { color: #333; }
+        .pricing-card ul li.not-included i { color: #333; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 35px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #000; text-decoration: none; border-radius: 14px; font-weight: 800; border: none; cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 10px 30px rgba(0,255,136,0.2);
+        }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,255,136,0.35); }
+        
+        footer { background: #020202; padding: 80px 5% 30px; border-top: 1px solid var(--border-subtle); }
+        .footer-content { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; }
+        .footer-section h3 { color: var(--primary); margin-bottom: 25px; font-size: 1.2rem; font-weight: 700; }
+        .footer-section p, .footer-section a { color: #555; text-decoration: none; line-height: 2.2; transition: 0.3s; display: block; font-size: 0.95rem; }
+        .footer-section a:hover { color: var(--primary); padding-right: 5px; }
+        .footer-desc { color: #555; line-height: 2; margin-bottom: 25px; font-size: 0.95rem; }
+        .footer-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+        .footer-brand-icon {
+            width: 45px; height: 45px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; color: #000; font-weight: 900;
+        }
+        .footer-brand h3 { margin: 0; font-size: 1.5rem; }
+        .social-links { display: flex; gap: 12px; margin-top: 25px; }
+        .social-links a { width: 45px; height: 45px; border-radius: 12px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; color: #888; font-size: 1.1rem; transition: all 0.3s; border: 1px solid var(--border-subtle); }
+        .social-links a:hover { background: linear-gradient(135deg, var(--primary), var(--secondary)); transform: translateY(-3px); color: #000; border-color: transparent; }
+        .footer-bottom { text-align: center; margin-top: 60px; padding-top: 25px; border-top: 1px solid var(--border-subtle); color: #333; font-size: 0.9rem; }
+        
+        .whatsapp-fixed {
+            position: fixed; bottom: 30px; left: 30px; z-index: 1000;
+            width: 60px; height: 60px; background: #25d366; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 25px rgba(37,211,102,0.4); animation: pulse 2s infinite;
+            text-decoration: none; color: #fff; font-size: 1.8rem; transition: 0.3s;
+        }
+        .whatsapp-fixed:hover { transform: scale(1.1); }
+        @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,0.7)} 70%{box-shadow:0 0 0 20px rgba(37,211,102,0)} }
+        
+        @media (max-width: 1200px) {
+            .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+            .pricing-card.featured { transform: scale(1); }
+        }
+        @media (max-width: 1024px) {
+            .service-item { grid-template-columns: 1fr; gap: 40px; }
+            .service-item:nth-child(even) { direction: rtl; }
+            .footer-content { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 2.5rem; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .footer-content { grid-template-columns: 1fr; }
+            .pricing-card.featured { transform: scale(1); }
+            .section-title { font-size: 2.2rem; }
+        }
+    
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed; top: 0; right: -100%; width: 80%; max-width: 320px; height: 100vh;
+            background: linear-gradient(145deg, var(--bg-card-light), var(--bg-card));
+            z-index: 2000; padding: 100px 30px 30px; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-left: 1px solid var(--border-subtle);
+        }
+        .mobile-menu.open { right: 0; }
+        .mobile-menu-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1999;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
+        }
+        .mobile-menu-overlay.open { opacity: 1; visibility: visible; }
+        .mobile-menu a {
+            display: block; padding: 18px 0; color: #aaa; text-decoration: none;
+            font-size: 1.2rem; font-weight: 600; border-bottom: 1px solid var(--border-subtle);
+            transition: 0.3s;
+        }
+        .mobile-menu a:hover { color: var(--primary); padding-right: 10px; }
+        .mobile-menu a.active { color: var(--primary); }
+        .mobile-menu-close {
+            position: absolute; top: 20px; left: 20px; background: none; border: none;
+            color: #fff; font-size: 1.5rem; cursor: pointer;
+        }
+    </style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+
+    <nav class="navbar" id="navbar">
+        <a href="index.html" class="logo" style="text-decoration:none;">
+            <div class="logo-icon">FK</div>
+            Future Key
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">الرئيسية</a></li>
+            <li><a href="about.html">من نحن</a></li>
+            <li><a href="services.html" class="active">خدماتنا</a></li>
+            <li><a href="portfolio.html">أعمالنا</a></li>
+            <li><a href="contact.html">تواصل معنا</a></li>
+        </ul>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="فتح القائمة"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu-overlay" id="mobileOverlay" onclick="toggleMobileMenu()"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" onclick="toggleMobileMenu()"><i class="fas fa-times"></i></button>
+        <a href="index.html">الرئيسية</a>
+        <a href="about.html">من نحن</a>
+        <a href="services.html">خدماتنا</a>
+        <a href="portfolio.html">أعمالنا</a>
+        <a href="contact.html">تواصل معنا</a>
+    </div>
+
+
+    <div class="page-header">
+        <h1>حلولنا <span>المتكاملة</span></h1>
+        <p>نقدم لك مجموعة شاملة من الخدمات الرقمية المصممة خصيصاً لتحقيق أهدافك</p>
+    </div>
+
+    <section class="services-detailed">
+        <div class="service-item reveal">
+            <div class="service-icon-wrap"><i class="fas fa-laptop-code service-icon"></i></div>
+            <div class="service-content">
+                <h2>تصميم وتطوير المواقع</h2>
+                <p>نصمم مواقع إلكترونية احترافية متجاوبة مع جميع الأجهزة، مع التركيز على تجربة المستخدم والأداء العالي.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> تصميم متجاوب مع جميع الشاشات</li>
+                    <li><i class="fas fa-check"></i> تحسين السرعة والأداء العالي</li>
+                    <li><i class="fas fa-check"></i> لوحة تحكم سهلة الاستخدام</li>
+                    <li><i class="fas fa-check"></i> حماية وأمان متقدم</li>
+                    <li><i class="fas fa-check"></i> دعم فني شامل</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="service-item reveal">
+            <div class="service-content">
+                <h2>تحسين محركات البحث (SEO)</h2>
+                <p>استراتيجيات متقدمة لضمان ظهور موقعك في الصفحات الأولى من Google.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> تحليل الكلمات المفتاحية المتقدم</li>
+                    <li><i class="fas fa-check"></i> تحسين المحتوى التقني On-Page</li>
+                    <li><i class="fas fa-check"></i> بناء الروابط الخلفية Backlinks</li>
+                    <li><i class="fas fa-check"></i> تقارير شهرية مفصلة</li>
+                    <li><i class="fas fa-check"></i> تحسين سرعة الموقع</li>
+                </ul>
+            </div>
+            <div class="service-icon-wrap"><i class="fas fa-search service-icon"></i></div>
+        </div>
+
+        <div class="service-item reveal">
+            <div class="service-icon-wrap"><i class="fas fa-shopping-cart service-icon"></i></div>
+            <div class="service-content">
+                <h2>المتاجر الإلكترونية</h2>
+                <p>متاجر إلكترونية كاملة مع جميع الميزات التي تحتاجها لبدء تجارتك الناجحة.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> تصميم متجاوب وجذاب</li>
+                    <li><i class="fas fa-check"></i> بوابات دفع متعددة</li>
+                    <li><i class="fas fa-check"></i> نظام إدارة مخزون ذكي</li>
+                    <li><i class="fas fa-check"></i> تقارير مبيعات وتحليلات</li>
+                    <li><i class="fas fa-check"></i> ربط مع شركات الشحن</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="service-item reveal">
+            <div class="service-content">
+                <h2>الهوية البصرية</h2>
+                <p>تصميم شعارات وهويات بصرية كاملة لعلامتك التجارية.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> تصميم شعار احترافي</li>
+                    <li><i class="fas fa-check"></i> دليل استخدام الهوية Brand Guide</li>
+                    <li><i class="fas fa-check"></i> تصميم البطاقات والأوراق الرسمية</li>
+                    <li><i class="fas fa-check"></i> تصميم سوشيال ميديا</li>
+                    <li><i class="fas fa-check"></i> ملفات بجودة عالية للطباعة</li>
+                </ul>
+            </div>
+            <div class="service-icon-wrap"><i class="fas fa-paint-brush service-icon"></i></div>
+        </div>
+
+        <div class="service-item reveal">
+            <div class="service-icon-wrap"><i class="fas fa-bullhorn service-icon"></i></div>
+            <div class="service-content">
+                <h2>التسويق الرقمي</h2>
+                <p>حملات إعلانية على فيسبوك وجوجل مع تحليلات دقيقة واستهداف ذكي.</p>
+                <ul class="service-features">
+                    <li><i class="fas fa-check"></i> إعلانات فيسبوك وإنستغرام</li>
+                    <li><i class="fas fa-check"></i> إعلانات Google Ads</li>
+                    <li><i class="fas fa-check"></i> إدارة حسابات السوشيال ميديا</li>
+                    <li><i class="fas fa-check"></i> تحليلات و reports دورية</li>
+                    <li><i class="fas fa-check"></i> استراتيجية محتوى متكاملة</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing">
+        <div class="section-label reveal">الأسعار</div>
+        <h2 class="section-title reveal">باقات <span>الأسعار</span></h2>
+        <p class="section-subtitle reveal">اختر الباقة المناسبة لاحتياجاتك وابدأ رحلتك الرقمية الناجحة</p>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card reveal">
+                <h3>الباقة الأساسية</h3>
+                <p class="subtitle">مثالية للمشاريع الناشئة</p>
+                <div class="price">499 <span>دولار</span></div>
+                <ul>
+                    <li><i class="fas fa-check"></i> موقع تعريفي 5 صفحات</li>
+                    <li><i class="fas fa-check"></i> تصميم متجاوب Responsive</li>
+                    <li><i class="fas fa-check"></i> دومين + استضافة سنة</li>
+                    <li><i class="fas fa-check"></i> SSL Certificate مجاني</li>
+                    <li><i class="fas fa-check"></i> دعم فني 3 أشهر</li>
+                    <li class="not-included"><i class="fas fa-times"></i> لوحة تحكم</li>
+                    <li class="not-included"><i class="fas fa-times"></i> SEO</li>
+                    <li class="not-included"><i class="fas fa-times"></i> تسويق رقمي</li>
+                </ul>
+                <a href="contact.html" class="btn">اطلب الآن <i class="fas fa-arrow-left"></i></a>
+            </div>
+            
+            <div class="pricing-card featured reveal">
+                <h3>الباقة الاحترافية</h3>
+                <p class="subtitle">الأكثر شعبية بين عملائنا</p>
+                <div class="price">999 <span>دولار</span></div>
+                <ul>
+                    <li><i class="fas fa-check"></i> موقع ديناميكي 10 صفحات</li>
+                    <li><i class="fas fa-check"></i> لوحة تحكم كاملة CMS</li>
+                    <li><i class="fas fa-check"></i> SEO أساسي</li>
+                    <li><i class="fas fa-check"></i> دومين + استضافة سنة</li>
+                    <li><i class="fas fa-check"></i> SSL Certificate مجاني</li>
+                    <li><i class="fas fa-check"></i> تصميم خاص مميز</li>
+                    <li><i class="fas fa-check"></i> دعم فني 6 أشهر</li>
+                    <li class="not-included"><i class="fas fa-times"></i> تسويق رقمي</li>
+                </ul>
+                <a href="contact.html" class="btn">اطلب الآن <i class="fas fa-arrow-left"></i></a>
+            </div>
+            
+            <div class="pricing-card reveal">
+                <h3>الباقة المتكاملة</h3>
+                <p class="subtitle">للشركات الكبرى والمتاجر</p>
+                <div class="price">1499 <span>دولار</span></div>
+                <ul>
+                    <li><i class="fas fa-check"></i> متجر إلكتروني كامل</li>
+                    <li><i class="fas fa-check"></i> لوحة تحكم متكاملة</li>
+                    <li><i class="fas fa-check"></i> SEO متقدم</li>
+                    <li><i class="fas fa-check"></i> دومين + استضافة سنتين</li>
+                    <li><i class="fas fa-check"></i> SSL Certificate مجاني</li>
+                    <li><i class="fas fa-check"></i> بوابات دفع متعددة</li>
+                    <li><i class="fas fa-check"></i> دعم فني سنة كاملة</li>
+                    <li class="not-included"><i class="fas fa-times"></i> تسويق رقمي</li>
+                </ul>
+                <a href="contact.html" class="btn">اطلب الآن <i class="fas fa-arrow-left"></i></a>
+            </div>
+
+            <div class="pricing-card reveal" style="border-color:rgba(0,255,136,0.1);">
+                <h3>الباقة البريميوم</h3>
+                <p class="subtitle">الباقة الأقوى للنمو السريع</p>
+                <div class="price">1999 <span>دولار</span></div>
+                <ul>
+                    <li><i class="fas fa-check"></i> كل حاجة في المتكاملة</li>
+                    <li><i class="fas fa-check"></i> تسويق رقمي 3 شهور</li>
+                    <li><i class="fas fa-check"></i> إدارة سوشيال ميديا</li>
+                    <li><i class="fas fa-check"></i> محتوى تسويقي شهري</li>
+                    <li><i class="fas fa-check"></i> تقارير أداء شهرية</li>
+                    <li><i class="fas fa-check"></i> دعم فني VIP</li>
+                    <li><i class="fas fa-check"></i> استضافة سحابية premium</li>
+                    <li><i class="fas fa-check"></i> استشارات شهرية</li>
+                </ul>
+                <a href="contact.html" class="btn">اطلب الآن <i class="fas fa-arrow-left"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-brand">
+                    <div class="footer-brand-icon">FK</div>
+                    <h3>Future Key</h3>
+                </div>
+                <p class="footer-desc">نحن نصنع الفرق في العالم الرقمي بحلول مبتكرة ومتكاملة لعملائنا في جميع أنحاء العالم.</p>
+                <div class="social-links">
+                    <a href="https://facebook.com"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://instagram.com"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>روابط سريعة</h3>
+                <a href="index.html">الرئيسية</a>
+                <a href="about.html">من نحن</a>
+                <a href="services.html">خدماتنا</a>
+                <a href="portfolio.html">أعمالنا</a>
+                <a href="contact.html">تواصل معنا</a>
+            </div>
+            <div class="footer-section">
+                <h3>خدماتنا</h3>
+                <a href="services.html">تصميم المواقع</a>
+                <a href="services.html">SEO</a>
+                <a href="services.html">المتاجر الإلكترونية</a>
+                <a href="services.html">الهوية البصرية</a>
+            </div>
+            <div class="footer-section">
+                <h3>تواصل معنا</h3>
+                <a href="https://wa.me/201113038209"><i class="fab fa-whatsapp" style="margin-left:8px"></i> 01113038209</a>
+                <a href="https://wa.me/201031906674"><i class="fab fa-whatsapp" style="margin-left:8px"></i> 01031906674</a>
+                <a href="mailto:info@futurekey.com"><i class="fas fa-envelope" style="margin-left:8px"></i> info@futurekey.com</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>جميع الحقوق محفوظة © 2026 Future Key | صُنع بإتقان في مصر 🇪🇬</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/201113038209" class="whatsapp-fixed"><i class="fab fa-whatsapp"></i></a>
+
+    <script>
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            revealElements.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                const elementVisible = 80;
+                if (elementTop < windowHeight - elementVisible) {
+                    el.classList.add('active');
+                }
+            });
+        };
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+    
+        // Mobile menu
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('open');
+            document.getElementById('mobileOverlay').classList.toggle('open');
+            document.body.style.overflow = document.getElementById('mobileMenu').classList.contains('open') ? 'hidden' : '';
+        }
+    </script>
+
+</body>
+</html>

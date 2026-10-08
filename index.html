@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Key | حلول الويب المتكاملة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00ff88;
+            --primary-dark: #00cc6a;
+            --secondary: #00d4aa;
+            --accent: #39ff14;
+            --bg-dark: #050505;
+            --bg-card: #0a0a0a;
+            --bg-card-light: #111111;
+            --bg-elevated: #1a1a1a;
+            --text-light: #e0e0e0;
+            --text-muted: #666;
+            --border-subtle: rgba(255,255,255,0.06);
+            --border-glow: rgba(0,255,136,0.15);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Tajawal', sans-serif; background: var(--bg-dark); color: #fff; overflow-x: hidden; }
+        
+        /* ===== Scroll Animations ===== */
+        .reveal { opacity: 0; transform: translateY(60px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal-left { opacity: 0; transform: translateX(-60px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal-left.active { opacity: 1; transform: translateX(0); }
+        .reveal-right { opacity: 0; transform: translateX(60px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal-right.active { opacity: 1; transform: translateX(0); }
+        .reveal-scale { opacity: 0; transform: scale(0.85); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal-scale.active { opacity: 1; transform: scale(1); }
+        
+        /* ===== Navbar ===== */
+        .navbar { 
+            position: fixed; top: 0; width: 100%; padding: 16px 5%; 
+            display: flex; justify-content: space-between; align-items: center; 
+            z-index: 1000; background: rgba(5,5,5,0.85); backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border-subtle); transition: all 0.4s ease;
+        }
+        .navbar.scrolled { padding: 12px 5%; background: rgba(5,5,5,0.95); box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
+        .logo { 
+            display: flex; align-items: center; gap: 14px;
+            font-size: 26px; font-weight: 900; letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        .logo-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; color: #000; font-weight: 900;
+            box-shadow: 0 4px 20px rgba(0,255,136,0.25);
+        }
+        .nav-links { display: flex; gap: 40px; list-style: none; align-items: center; }
+        .nav-links a { color: #aaa; text-decoration: none; font-weight: 500; transition: 0.3s; position: relative; font-size: 0.95rem; }
+        .nav-links a:hover { color: #fff; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -6px; right: 0; width: 0; height: 2px; background: var(--primary); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); border-radius: 2px; }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a.active { color: var(--primary); }
+        .nav-links a.active::after { width: 100%; }
+        .mobile-menu-btn { display: none; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; }
+        
+        /* ===== Choice Overlay ===== */
+        .choice-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+        .choice-box {
+            background: linear-gradient(145deg, var(--bg-card-light), var(--bg-card));
+            padding: 70px 55px; border-radius: 32px; border: 1px solid var(--border-glow);
+            text-align: center; max-width: 520px; width: 90%;
+            box-shadow: 0 40px 100px rgba(0,255,136,0.08), inset 0 1px 0 rgba(255,255,255,0.05);
+            position: relative; overflow: hidden;
+        }
+        .choice-box::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(0,255,136,0.03) 0%, transparent 60%);
+            animation: rotate 20s linear infinite;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .choice-content { position: relative; z-index: 2; }
+        .choice-box .brand-icon {
+            width: 90px; height: 90px; border-radius: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 30px; font-size: 2.5rem; color: #000; font-weight: 900;
+            box-shadow: 0 15px 40px rgba(0,255,136,0.3);
+        }
+        .choice-box h2 { font-size: 2.2rem; margin-bottom: 12px; font-weight: 800; }
+        .choice-box h2 span { color: var(--primary); }
+        .choice-box p { color: var(--text-muted); margin-bottom: 40px; line-height: 1.8; font-size: 1.05rem; }
+        .choice-buttons { display: flex; gap: 16px; flex-direction: column; }
+        .choice-btn {
+            padding: 20px 32px; border-radius: 18px; font-size: 1.1rem; font-weight: 700;
+            cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: none; font-family: 'Tajawal', sans-serif;
+            position: relative; overflow: hidden;
+        }
+        .choice-btn.primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #000; box-shadow: 0 10px 35px rgba(0,255,136,0.25);
+        }
+        .choice-btn.primary:hover { transform: translateY(-3px); box-shadow: 0 20px 50px rgba(0,255,136,0.4); }
+        .choice-btn.secondary {
+            background: rgba(255,255,255,0.03); color: #fff; border: 1px solid rgba(255,255,255,0.08);
+        }
+        .choice-btn.secondary:hover { border-color: var(--primary); color: var(--primary); background: rgba(0,255,136,0.05); transform: translateY(-3px); }
+        
+        /* ===== Hero ===== */
+        .hero { 
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; 
+            text-align: center; padding: 140px 5% 100px; 
+            background: radial-gradient(ellipse at 50% 0%, #0a1f0a 0%, var(--bg-dark) 60%);
+            position: relative; overflow: hidden;
+        }
+        .hero-particles {
+            position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+        }
+        .particle {
+            position: absolute; width: 4px; height: 4px; background: var(--primary);
+            border-radius: 50%; opacity: 0.3; animation: float-particle 15s infinite;
+        }
+        @keyframes float-particle {
+            0%,100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+        }
+        .hero::before {
+            content: ''; position: absolute; width: 800px; height: 800px; 
+            background: radial-gradient(circle, rgba(0,255,136,0.06) 0%, transparent 70%);
+            top: -300px; left: -250px; animation: float 10s ease-in-out infinite;
+        }
+        .hero::after {
+            content: ''; position: absolute; width: 600px; height: 600px; 
+            background: radial-gradient(circle, rgba(0,212,170,0.04) 0%, transparent 70%);
+            bottom: -200px; right: -150px; animation: float 12s ease-in-out infinite reverse;
+        }
+        @keyframes float { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-30px) rotate(3deg)} }
+        .hero-content { position: relative; z-index: 2; }
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 10px 24px; background: rgba(0,255,136,0.08);
+            border: 1px solid rgba(0,255,136,0.15); border-radius: 50px;
+            font-size: 0.9rem; color: var(--primary); margin-bottom: 35px;
+            backdrop-filter: blur(10px);
+        }
+        .hero-badge .dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: pulse-dot 2s infinite; }
+        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+        .hero-content h1 { font-size: 5rem; font-weight: 900; margin-bottom: 30px; line-height: 1.1; letter-spacing: -1px; }
+        .hero-content h1 span { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-content p { font-size: 1.25rem; color: #777; margin-bottom: 50px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.9; }
+        .hero-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 18px 48px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #000; text-decoration: none; border-radius: 16px; font-weight: 800; font-size: 1.05rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: none; cursor: pointer;
+            box-shadow: 0 10px 35px rgba(0,255,136,0.25); position: relative; overflow: hidden;
+        }
+        .btn::before {
+            content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0; transition: 0.3s;
+        }
+        .btn:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,255,136,0.4); }
+        .btn:hover::before { opacity: 1; }
+        .btn-outline {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 18px 48px; background: transparent;
+            color: #fff; text-decoration: none; border-radius: 16px; font-weight: 700; font-size: 1.05rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); border: 1.5px solid rgba(255,255,255,0.1);
+        }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: rgba(0,255,136,0.05); transform: translateY(-4px); }
+        
+        /* ===== Stats ===== */
+        .stats { padding: 100px 5%; background: linear-gradient(180deg, var(--bg-dark), var(--bg-card)); position: relative; }
+        .stats::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,255,136,0.2), transparent); }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; max-width: 1100px; margin: 0 auto; text-align: center; }
+        .stat-item { 
+            padding: 35px 25px; background: linear-gradient(145deg, rgba(255,255,255,0.03), transparent);
+            border-radius: 24px; border: 1px solid var(--border-subtle); transition: 0.4s;
+        }
+        .stat-item:hover { border-color: var(--border-glow); transform: translateY(-5px); }
+        .stat-item h2 { font-size: 3.5rem; font-weight: 900; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-item p { color: var(--text-muted); margin-top: 10px; font-size: 1rem; }
+        
+        /* ===== Services Preview ===== */
+        .services-preview { padding: 120px 5%; background: var(--bg-card); }
+        .section-header { text-align: center; margin-bottom: 80px; }
+        .section-label {
+            display: inline-block; padding: 8px 20px; background: rgba(0,255,136,0.08);
+            border: 1px solid rgba(0,255,136,0.15); border-radius: 50px;
+            font-size: 0.85rem; color: var(--primary); margin-bottom: 20px; letter-spacing: 1px;
+        }
+        .section-title { text-align: center; font-size: 3rem; margin-bottom: 20px; font-weight: 900; letter-spacing: -0.5px; }
+        .section-title span { color: var(--primary); }
+        .section-subtitle { text-align: center; color: var(--text-muted); margin-bottom: 70px; font-size: 1.1rem; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.8; }
+        .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; max-width: 1200px; margin: 0 auto; }
+        .card {
+            background: linear-gradient(145deg, var(--bg-card-light), var(--bg-card)); padding: 50px 35px; border-radius: 24px;
+            border: 1px solid var(--border-subtle); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); text-align: center; position: relative; overflow: hidden;
+        }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--primary), var(--secondary)); transform: scaleX(0); transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card:hover { transform: translateY(-12px); border-color: var(--border-glow); box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 40px rgba(0,255,136,0.05); }
+        .card:hover::before { transform: scaleX(1); }
+        .card-icon-wrap {
+            width: 70px; height: 70px; border-radius: 20px;
+            background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,212,170,0.05));
+            border: 1px solid rgba(0,255,136,0.1);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 25px;
+        }
+        .card i { font-size: 1.8rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card h3 { font-size: 1.3rem; margin-bottom: 18px; font-weight: 700; }
+        .card p { color: #666; line-height: 1.9; font-size: 0.95rem; }
+        
+        /* ===== Why Us ===== */
+        .why-us { padding: 120px 5%; background: var(--bg-dark); }
+        .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; max-width: 1200px; margin: 0 auto; align-items: center; }
+        .why-content h2 { font-size: 2.8rem; margin-bottom: 30px; font-weight: 900; letter-spacing: -0.5px; }
+        .why-content h2 span { color: var(--primary); }
+        .why-content p { color: #666; line-height: 2; margin-bottom: 30px; font-size: 1.1rem; }
+        .why-features { list-style: none; }
+        .why-features li { padding: 14px 0; color: #ccc; display: flex; align-items: center; gap: 16px; font-size: 1.05rem; }
+        .why-features li i { 
+            width: 28px; height: 28px; border-radius: 8px;
+            background: rgba(0,255,136,0.1); color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; flex-shrink: 0;
+        }
+        .why-visual {
+            background: linear-gradient(145deg, var(--bg-card-light), var(--bg-card)); border-radius: 32px; padding: 60px;
+            border: 1px solid var(--border-subtle); text-align: center; position: relative; overflow: hidden;
+        }
+        .why-visual::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(0,255,136,0.05) 0%, transparent 70%);
+        }
+        .why-visual-inner { position: relative; z-index: 2; }
+        .why-visual .big-icon {
+            width: 120px; height: 120px; border-radius: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 30px; font-size: 3rem; color: #000;
+            box-shadow: 0 20px 60px rgba(0,255,136,0.2);
+        }
+        .why-visual h3 { font-size: 1.8rem; margin-bottom: 15px; }
+        .why-visual p { color: #666; line-height: 1.8; }
+        
+        /* ===== Process ===== */
+        .process { padding: 120px 5%; background: linear-gradient(180deg, var(--bg-card), var(--bg-dark)); }
+        .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; max-width: 1100px; margin: 0 auto; position: relative; }
+        .process-grid::before {
+            content: ''; position: absolute; top: 60px; left: 12.5%; right: 12.5%; height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0,255,136,0.2), transparent); z-index: 0;
+        }
+        .process-step {
+            background: linear-gradient(145deg, var(--bg-card-light), var(--bg-card)); padding: 45px 25px; border-radius: 24px;
+            border: 1px solid var(--border-subtle); text-align: center; position: relative; z-index: 1; transition: 0.4s;
+        }
+        .process-step:hover { border-color: var(--border-glow); transform: translateY(-8px); }
+        .process-step .step-num {
+            width: 55px; height: 55px; border-radius: 16px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.3rem;
+            margin: 0 auto 25px; color: #000; box-shadow: 0 8px 25px rgba(0,255,136,0.25);
+        }
+        .process-step h3 { font-size: 1.2rem; margin-bottom: 14px; font-weight: 700; }
+        .process-step p { color: #666; font-size: 0.95rem; line-height: 1.7; }
+        
+        /* ===== Testimonials ===== */
+        .testimonials { padding: 120px 5%; background: linear-gradient(180deg, var(--bg-dark), var(--bg-card)); }
+        .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; max-width: 1100px; margin: 0 auto; }
+        .testimonial-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.02), transparent); padding: 45px 35px; border-radius: 24px;
+            border: 1px solid var(--border-subtle); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .testimonial-card:hover { transform: translateY(-10px); border-color: var(--border-glow); box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+        .stars { color: #ffd700; margin-bottom: 22px; font-size: 1rem; letter-spacing: 2px; }
+        .testimonial-card > p { color: #aaa; line-height: 2; margin-bottom: 30px; font-size: 0.95rem; }
+        .testimonial-author { display: flex; align-items: center; gap: 15px; }
+        .author-avatar { width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; color: #000; }
+        .author-info h4 { font-size: 1rem; margin-bottom: 4px; font-weight: 700; }
+        .author-info p { color: #555; font-size: 0.85rem; margin: 0; }
+        
+        /* ===== CTA ===== */
+        .cta { padding: 120px 5%; background: linear-gradient(180deg, var(--bg-card), var(--bg-dark)); text-align: center; position: relative; overflow: hidden; }
+        .cta::before {
+            content: ''; position: absolute; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(0,255,136,0.05) 0%, transparent 70%);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        .cta-content { position: relative; z-index: 2; }
+        .cta h2 { font-size: 3rem; margin-bottom: 25px; font-weight: 900; letter-spacing: -0.5px; }
+        .cta h2 span { color: var(--primary); }
+        .cta p { color: #666; margin-bottom: 45px; font-size: 1.2rem; max-width: 500px; margin-left: auto; margin-right: auto; }
+        
+        /* ===== Footer ===== */
+        footer { background: #020202; padding: 80px 5% 30px; border-top: 1px solid var(--border-subtle); }
+        .footer-content { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; }
+        .footer-section h3 { color: var(--primary); margin-bottom: 25px; font-size: 1.2rem; font-weight: 700; }
+        .footer-section p, .footer-section a { color: #555; text-decoration: none; line-height: 2.2; transition: 0.3s; display: block; font-size: 0.95rem; }
+        .footer-section a:hover { color: var(--primary); padding-right: 5px; }
+        .footer-desc { color: #555; line-height: 2; margin-bottom: 25px; font-size: 0.95rem; }
+        .footer-brand { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+        .footer-brand-icon {
+            width: 45px; height: 45px; border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; color: #000; font-weight: 900;
+        }
+        .footer-brand h3 { margin: 0; font-size: 1.5rem; }
+        .social-links { display: flex; gap: 12px; margin-top: 25px; }
+        .social-links a { width: 45px; height: 45px; border-radius: 12px; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; color: #888; font-size: 1.1rem; transition: all 0.3s; border: 1px solid var(--border-subtle); }
+        .social-links a:hover { background: linear-gradient(135deg, var(--primary), var(--secondary)); transform: translateY(-3px); color: #000; border-color: transparent; }
+        .footer-bottom { text-align: center; margin-top: 60px; padding-top: 25px; border-top: 1px solid var(--border-subtle); color: #333; font-size: 0.9rem; }
+        
+        /* ===== WhatsApp Fixed ===== */
+        .whatsapp-fixed {
+            position: fixed; bottom: 30px; left: 30px; z-index: 1000;
+            width: 60px; height: 60px; background: #25d366; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 25px rgba(37,211,102,0.4); animation: pulse 2s infinite;
+            text-decoration: none; color: #fff; font-size: 1.8rem; transition: 0.3s;
+        }
+        .whatsapp-fixed:hover { transform: scale(1.1); }
+        @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,0.7)} 70%{box-shadow:0 0 0 20px rgba(37,211,102,0)} }
+        
+        /* ===== Chatbot ===== */
+        .chatbot-btn {
+            position: fixed; bottom: 30px; right: 30px; z-index: 1000;
+            width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 25px rgba(0,255,136,0.3); cursor: pointer; border: none; color: #000; font-size: 1.5rem; transition: 0.3s;
+        }
+        .chatbot-btn:hover { transform: scale(1.1); }
+        .chatbot-window {
+            position: fixed; bottom: 105px; right: 30px; width: 400px; height: 550px;
+            background: var(--bg-card-light); border-radius: 24px; border: 1px solid var(--border-glow);
+            display: none; flex-direction: column; z-index: 1000; overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+        }
+        .chatbot-header { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 20px; color: #000; 
+            font-weight: 800; display: flex; align-items: center; gap: 12px; font-size: 1.1rem;
+        }
+        .chatbot-header i { font-size: 1.4rem; }
+        .chatbot-body { flex: 1; padding: 20px; overflow-y: auto; }
+        .chatbot-body::-webkit-scrollbar { width: 5px; }
+        .chatbot-body::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.3); border-radius: 10px; }
+        .chatbot-input { display: flex; padding: 15px; border-top: 1px solid var(--border-subtle); gap: 10px; }
+        .chatbot-input input { 
+            flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); 
+            padding: 12px 18px; border-radius: 14px; color: #fff; outline: none; font-family: 'Tajawal', sans-serif; font-size: 0.95rem;
+        }
+        .chatbot-input input:focus { border-color: var(--primary); }
+        .chatbot-input button { 
+            background: var(--primary); border: none; color: #000; padding: 12px 20px; border-radius: 14px; 
+            cursor: pointer; transition: 0.3s; font-size: 1rem; font-weight: 700;
+        }
+        .chatbot-input button:hover { background: var(--primary-dark); }
+        .message { margin-bottom: 15px; padding: 14px 18px; border-radius: 18px; max-width: 88%; line-height: 1.8; font-size: 0.95rem; }
+        .bot-msg { background: rgba(0,255,136,0.06); color: #fff; border-bottom-right-radius: 5px; border: 1px solid rgba(0,255,136,0.08); }
+        .user-msg { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #000; margin-left: auto; border-bottom-left-radius: 5px; font-weight: 600; }
+        .typing { display: flex; gap: 5px; padding: 14px 18px; }
+        .typing span { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%,60%,100%{opacity:0.3; transform:scale(1)} 30%{opacity:1; transform:scale(1.2)} }
+        
+        .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .quick-reply {
+            padding: 8px 16px; background: rgba(0,255,136,0.08); border: 1px solid rgba(0,255,136,0.15);
+            border-radius: 20px; color: var(--primary); cursor: pointer; font-size: 0.85rem;
+            transition: 0.3s; font-family: 'Tajawal', sans-serif;
+        }
+        .quick-reply:hover { background: var(--primary); color: #000; }
+        
+        /* ===== Responsive ===== */
+        @media (max-width: 1024px) {
+            .cards-grid, .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+            .why-grid, .process-grid { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: repeat(2, 1fr); }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .process-grid::before { display: none; }
+        }
+        @media (max-width: 768px) {
+            .hero-content h1 { font-size: 2.8rem; }
+            .section-title { font-size: 2.2rem; }
+            .nav-links { display: none; }
+            .mobile-menu-btn { display: block; }
+            .cards-grid, .testimonials-grid, .stats-grid { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr; }
+            .chatbot-window { width: 90%; right: 5%; height: 450px; }
+            .process-grid { grid-template-columns: 1fr 1fr; }
+            .choice-box { padding: 50px 30px; }
+            .why-grid { gap: 50px; }
+        }
+    
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed; top: 0; right: -100%; width: 80%; max-width: 320px; height: 100vh;
+            background: linear-gradient(145deg, var(--bg-card-light), var(--bg-card));
+            z-index: 2000; padding: 100px 30px 30px; transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border-left: 1px solid var(--border-subtle);
+        }
+        .mobile-menu.open { right: 0; }
+        .mobile-menu-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1999;
+            opacity: 0; visibility: hidden; transition: all 0.3s;
+        }
+        .mobile-menu-overlay.open { opacity: 1; visibility: visible; }
+        .mobile-menu a {
+            display: block; padding: 18px 0; color: #aaa; text-decoration: none;
+            font-size: 1.2rem; font-weight: 600; border-bottom: 1px solid var(--border-subtle);
+            transition: 0.3s;
+        }
+        .mobile-menu a:hover { color: var(--primary); padding-right: 10px; }
+        .mobile-menu a.active { color: var(--primary); }
+        .mobile-menu-close {
+            position: absolute; top: 20px; left: 20px; background: none; border: none;
+            color: #fff; font-size: 1.5rem; cursor: pointer;
+        }
+    </style>
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+
+    
+
+    <nav class="navbar" id="navbar">
+        <a href="index.html" class="logo" style="text-decoration:none;">
+            <div class="logo-icon">FK</div>
+            Future Key
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">الرئيسية</a></li>
+            <li><a href="about.html">من نحن</a></li>
+            <li><a href="services.html">خدماتنا</a></li>
+            <li><a href="portfolio.html">أعمالنا</a></li>
+            <li><a href="contact.html">تواصل معنا</a></li>
+        </ul>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="فتح القائمة"><i class="fas fa-bars"></i></button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu-overlay" id="mobileOverlay" onclick="toggleMobileMenu()"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" onclick="toggleMobileMenu()"><i class="fas fa-times"></i></button>
+        <a href="index.html">الرئيسية</a>
+        <a href="about.html">من نحن</a>
+        <a href="services.html">خدماتنا</a>
+        <a href="portfolio.html">أعمالنا</a>
+        <a href="contact.html">تواصل معنا</a>
+    </div>
+
+
+    <section class="hero">
+        <div class="hero-particles" id="particles"></div>
+        <div class="hero-content">
+            <div class="hero-badge reveal-scale">
+                <span class="dot"></span>
+                شركة رائدة في حلول الويب المتكاملة
+            </div>
+            <h1 class="reveal">نبني <span>مستقبلك الرقمي</span><br>بأحدث التقنيات</h1>
+            <p class="reveal">Future Key هي شريكك الموثوق في بناء المواقع الإلكترونية الاحترافية والتطبيقات الذكية التي تُحدث فرقاً في عالمك الرقمي.</p>
+            <div class="hero-buttons reveal">
+                <a href="services.html" class="btn">اكتشف خدماتنا <i class="fas fa-arrow-left"></i></a>
+                <a href="contact.html" class="btn-outline">تواصل معنا</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stats-grid">
+            <div class="stat-item reveal"><h2>+150</h2><p>عميل سعيد</p></div>
+            <div class="stat-item reveal"><h2>+200</h2><p>مشروع منجز</p></div>
+            <div class="stat-item reveal"><h2>+5</h2><p>سنوات خبرة</p></div>
+            <div class="stat-item reveal"><h2>24/7</h2><p>دعم فني</p></div>
+        </div>
+    </section>
+
+    <section class="services-preview">
+        <div class="section-header reveal">
+            <div class="section-label">خدماتنا</div>
+            <h2 class="section-title">خدماتنا <span>المتميزة</span></h2>
+            <p class="section-subtitle">نقدم لك حلولاً رقمية شاملة تلبي جميع احتياجاتك</p>
+        </div>
+        <div class="cards-grid">
+            <div class="card reveal">
+                <div class="card-icon-wrap"><i class="fas fa-laptop-code"></i></div>
+                <h3>تصميم المواقع</h3>
+                <p>مواقع إلكترونية احترافية متجاوبة مع جميع الأجهزة بتصاميم عصرية وجذابة</p>
+            </div>
+            <div class="card reveal">
+                <div class="card-icon-wrap"><i class="fas fa-search"></i></div>
+                <h3>تحسين محركات البحث</h3>
+                <p>استراتيجيات SEO متقدمة لضمان ظهور موقعك في الصفحات الأولى</p>
+            </div>
+            <div class="card reveal">
+                <div class="card-icon-wrap"><i class="fas fa-shopping-cart"></i></div>
+                <h3>المتاجر الإلكترونية</h3>
+                <p>متاجر كاملة مع بوابات دفع متعددة ونظام إدارة مخزون ذكي</p>
+            </div>
+            <div class="card reveal">
+                <div class="card-icon-wrap"><i class="fas fa-paint-brush"></i></div>
+                <h3>الهوية البصرية</h3>
+                <p>تصميم شعارات وهويات بصرية كاملة لعلامتك التجارية</p>
+            </div>
+            <div class="card reveal">
+                <div class="card-icon-wrap"><i class="fas fa-bullhorn"></i></div>
+                <h3>التسويق الرقمي</h3>
+                <p>حملات إعلانية على فيسبوك وجوجل مع تحليلات دقيقة واستهداف ذكي</p>
+            </div>
+            <div class="card reveal">
+                <div class="card-icon-wrap"><i class="fas fa-code"></i></div>
+                <h3>تطوير خاص</h3>
+                <p>حلول برمجية مخصصة حسب احتياجات عملك مع أحدث التقنيات</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="why-us">
+        <div class="why-grid">
+            <div class="why-content reveal-left">
+                <h2>لماذا تختار <span>Future Key؟</span></h2>
+                <p>نحن لا نبني مواقع فقط، نحن نبني علاقات طويلة الأمد مع عملائنا. نؤمن بأن نجاحك هو نجاحنا.</p>
+                <ul class="why-features">
+                    <li><i class="fas fa-check"></i> فريق متخصص من مطورين محترفين</li>
+                    <li><i class="fas fa-check"></i> التزام تام بالمواعيد والجودة</li>
+                    <li><i class="fas fa-check"></i> دعم فني على مدار الساعة</li>
+                    <li><i class="fas fa-check"></i> أسعار تنافسية مع ضمان الجودة</li>
+                    <li><i class="fas fa-check"></i> تصاميم حصرية ومخصصة لكل عميل</li>
+                    <li><i class="fas fa-check"></i> تقنيات حديثة وآمنة</li>
+                </ul>
+            </div>
+            <div class="why-visual reveal-right">
+                <div class="why-visual-inner">
+                    <div class="big-icon"><i class="fas fa-key"></i></div>
+                    <h3>مفتاح نجاحك الرقمي</h3>
+                    <p>نحن نفتح لك أبواب النجاح في العالم الرقمي بأحدث التقنيات</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="process">
+        <div class="section-header reveal">
+            <div class="section-label">العملية</div>
+            <h2 class="section-title">خطوات <span>العمل</span></h2>
+            <p class="section-subtitle">نحن نتبع منهجية احترافية ومنظمة في كل مشروع</p>
+        </div>
+        <div class="process-grid">
+            <div class="process-step reveal"><div class="step-num">1</div><h3>الاستشارة</h3><p>نستمع لأفكارك ونفهم احتياجاتك</p></div>
+            <div class="process-step reveal"><div class="step-num">2</div><h3>التصميم</h3><p>نصمم نموذجاً أولياً يعكس رؤيتك</p></div>
+            <div class="process-step reveal"><div class="step-num">3</div><h3>التطوير</h3><p>نبرمج بأحدث التقنيات</p></div>
+            <div class="process-step reveal"><div class="step-num">4</div><h3>الإطلاق</h3><p>نطلق موقعك وندعمك</p></div>
+        </div>
+    </section>
+
+    <section class="testimonials">
+        <div class="section-header reveal">
+            <div class="section-label">الآراء</div>
+            <h2 class="section-title">آراء <span>عملائنا</span></h2>
+            <p class="section-subtitle">ثقة عملائنا هي أغلى ما نملك</p>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card reveal">
+                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p>"تعاملت مع Future Key في موقع شركتي وكانت النتيجة رائعة جداً. سرعة في التنفيذ وجودة عالية لا مثيل لها."</p>
+                <div class="testimonial-author"><div class="author-avatar">أ</div><div class="author-info"><h4>أحمد محمود</h4><p>صاحب شركة</p></div></div>
+            </div>
+            <div class="testimonial-card reveal">
+                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p>"فريق محترف جداً وفاهم في الشغل. عملوا لي متجر إلكتروني كامل في وقت قياسي وبجودة ممتازة."</p>
+                <div class="testimonial-author"><div class="author-avatar">س</div><div class="author-info"><h4>سارة عبدالله</h4><p>صاحبة متجر</p></div></div>
+            </div>
+            <div class="testimonial-card reveal">
+                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                <p>"الدعم الفني ممتاز والتعامل راقي جداً. أنصح أي حد يبني موقع يتعامل مع Future Key."</p>
+                <div class="testimonial-author"><div class="author-avatar">م</div><div class="author-info"><h4>محمد علي</h4><p>مدير تسويق</p></div></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="cta-content">
+            <h2 class="reveal">جاهز لبناء <span>مشروعك القادم؟</span></h2>
+            <p class="reveal">دعنا نساعدك في تحويل فكرتك إلى واقع رقمي مذهل</p>
+            <a href="contact.html" class="btn reveal">ابدأ مشروعك الآن <i class="fas fa-arrow-left"></i></a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-brand">
+                    <div class="footer-brand-icon">FK</div>
+                    <h3>Future Key</h3>
+                </div>
+                <p class="footer-desc">نحن نصنع الفرق في العالم الرقمي بحلول مبتكرة ومتكاملة لعملائنا في جميع أنحاء العالم.</p>
+                <div class="social-links">
+                    <a href="https://facebook.com"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://instagram.com"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>روابط سريعة</h3>
+                <a href="index.html">الرئيسية</a>
+                <a href="about.html">من نحن</a>
+                <a href="services.html">خدماتنا</a>
+                <a href="portfolio.html">أعمالنا</a>
+                <a href="contact.html">تواصل معنا</a>
+            </div>
+            <div class="footer-section">
+                <h3>خدماتنا</h3>
+                <a href="services.html">تصميم المواقع</a>
+                <a href="services.html">SEO</a>
+                <a href="services.html">المتاجر الإلكترونية</a>
+                <a href="services.html">الهوية البصرية</a>
+            </div>
+            <div class="footer-section">
+                <h3>تواصل معنا</h3>
+                <a href="https://wa.me/201113038209"><i class="fab fa-whatsapp" style="margin-left:8px"></i> 01113038209</a>
+                <a href="https://wa.me/201031906674"><i class="fab fa-whatsapp" style="margin-left:8px"></i> 01031906674</a>
+                <a href="mailto:info@futurekey.com"><i class="fas fa-envelope" style="margin-left:8px"></i> info@futurekey.com</a>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>جميع الحقوق محفوظة © 2026 Future Key | صُنع بإتقان في مصر 🇪🇬</p></div>
+    </footer>
+
+    <a href="https://wa.me/201113038209" class="whatsapp-fixed"><i class="fab fa-whatsapp"></i></a>
+
+    <button class="chatbot-btn" onclick="toggleChat()"><i class="fas fa-robot"></i></button>
+    <div class="chatbot-window" id="chatbot">
+        <div class="chatbot-header"><i class="fas fa-robot"></i> مساعد Future Key</div>
+        <div class="chatbot-body" id="chatBody">
+            <div class="message bot-msg">
+                👋 أهلاً بك في Future Key!<br><br>
+                أنا مساعدك الذكي، ممكن أساعدك في أي استفسار:
+                <div class="quick-replies">
+                    <button class="quick-reply" onclick="quickReply('الأسعار')">💰 الأسعار</button>
+                    <button class="quick-reply" onclick="quickReply('الخدمات')">🛠️ الخدمات</button>
+                    <button class="quick-reply" onclick="quickReply('الوقت')">⏱️ الوقت</button>
+                    <button class="quick-reply" onclick="quickReply('التواصل')">📱 التواصل</button>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatInput" placeholder="اكتب رسالتك هنا..." onkeypress="if(event.key==='Enter')sendMessage()">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <script>
+        
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.animationDelay = Math.random() * 15 + 's';
+            p.style.animationDuration = (10 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(p);
+        }
+        
+        // Reveal on scroll
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+        const revealOnScroll = () => {
+            revealElements.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                const elementVisible = 80;
+                if (elementTop < windowHeight - elementVisible) {
+                    el.classList.add('active');
+                }
+            });
+        };
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+        
+        // Chatbot
+        function toggleChat() {
+            const chat = document.getElementById('chatbot');
+            chat.style.display = chat.style.display === 'flex' ? 'none' : 'flex';
+        }
+        function quickReply(text) {
+            document.getElementById('chatInput').value = text;
+            sendMessage();
+        }
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const body = document.getElementById('chatBody');
+            const msg = input.value.trim();
+            if (!msg) return;
+            body.innerHTML += `<div class="message user-msg">${msg}</div>`;
+            input.value = '';
+            body.scrollTop = body.scrollHeight;
+            const typingId = 'typing-' + Date.now();
+            body.innerHTML += `<div class="message bot-msg typing" id="${typingId}"><span></span><span></span><span></span></div>`;
+            body.scrollTop = body.scrollHeight;
+            setTimeout(() => {
+                const typingEl = document.getElementById(typingId);
+                if (typingEl) typingEl.remove();
+                let reply = "";
+                let quickReplies = "";
+                const lower = msg.toLowerCase();
+                if (lower.includes("سعر") || lower.includes("تكلفة") || lower.includes("فلوس") || lower.includes("مصاريف") || lower.includes("بكام") || lower.includes("الأسعار")) {
+                    reply = "💰 <b>أسعارنا:</b><br><br>• الأساسية: <b>499 دولار</b><br>• الاحترافية: <b>999 دولار</b><br>• المتكاملة: <b>1499 دولار</b><br>• البريميوم: <b>1999 دولار</b><br><br>📱 للاستفسار: <b>01113038209</b>";
+                    quickReplies = `<div class="quick-replies"><button class="quick-reply" onclick="quickReply('الباقة الأساسية')">📋 الأساسية</button><button class="quick-reply" onclick="quickReply('الباقة الاحترافية')">⭐ الاحترافية</button><button class="quick-reply" onclick="quickReply('الباقة المتكاملة')">💎 المتكاملة</button><button class="quick-reply" onclick="quickReply('الباقة البريميوم')">👑 البريميوم</button></div>`;
+                }
+                else if (lower.includes("الباقة الأساسية") || lower.includes("اساسية")) {
+                    reply = "📋 <b>الباقة الأساسية - 499 دولار:</b><br><br>✅ موقع تعريفي 5 صفحات<br>✅ تصميم متجاوب<br>✅ دومين + استضافة سنة<br>✅ SSL مجاني<br>✅ دعم فني 3 أشهر<br><br>مثالية للمشاريع الناشئة! 🌱";
+                }
+                else if (lower.includes("الباقة الاحترافية") || lower.includes("احترافية")) {
+                    reply = "⭐ <b>الباقة الاحترافية - 999 دولار:</b><br><br>✅ موقع ديناميكي 10 صفحات<br>✅ لوحة تحكم CMS<br>✅ SEO أساسي<br>✅ دومين + استضافة سنة<br>✅ دعم فني 6 أشهر<br><br>الأكثر شعبية! 🔥";
+                }
+                else if (lower.includes("الباقة المتكاملة") || lower.includes("متكاملة")) {
+                    reply = "💎 <b>الباقة المتكاملة - 1499 دولار:</b><br><br>✅ متجر إلكتروني كامل<br>✅ لوحة تحكم متكاملة<br>✅ SEO متقدم<br>✅ دومين + استضافة سنتين<br>✅ دعم فني سنة<br><br>للشركات الكبرى! 🚀";
+                }
+                else if (lower.includes("الباقة البريميوم") || lower.includes("بريميوم")) {
+                    reply = "👑 <b>الباقة البريميوم - 1999 دولار:</b><br><br>✅ كل حاجة في المتكاملة<br>✅ تسويق رقمي 3 شهور<br>✅ إدارة سوشيال ميديا<br>✅ محتوى تسويقي شهري<br>✅ تقارير أداء شهرية<br>✅ دعم VIP<br><br>الباقة الأقوى! 🔥🔥";
+                }
+                else if (lower.includes("وقت") || lower.includes("مدة") || lower.includes("الوقت")) {
+                    reply = "⏱️ <b>مدة التنفيذ:</b><br><br>• موقع تعريفي: <b>7-10 أيام</b><br>• موقع ديناميكي: <b>14-21 يوم</b><br>• متجر إلكتروني: <b>21-30 يوم</b><br><br>⚡ نلتزم بالمواعيد 100%!";
+                }
+                else if (lower.includes("خدمة") || lower.includes("الخدمات")) {
+                    reply = "🛠️ <b>خدماتنا:</b><br><br>💻 تصميم مواقع<br>🔍 SEO<br>🛒 متاجر إلكترونية<br>🎨 هوية بصرية<br>📢 تسويق رقمي<br>⚙️ تطوير خاص";
+                }
+                else if (lower.includes("تواصل") || lower.includes("واتس") || lower.includes("رقم")) {
+                    reply = "📱 <b>تواصل معنا:</b><br><br>• واتساب: <b>01113038209</b><br>• إيميل: info@futurekey.com<br><br>نرد خلال ساعة! ⚡";
+                }
+                else {
+                    reply = "🤔 عشان أساعدك، جرب تسأل عن:<br><br>💰 <b>\"الأسعار\"</b><br>⏱️ <b>\"الوقت\"</b><br>🛠️ <b>\"الخدمات\"</b><br>📱 <b>\"التواصل\"</b>";
+                }
+                body.innerHTML += `<div class="message bot-msg">${reply}${quickReplies}</div>`;
+                body.scrollTop = body.scrollHeight;
+            }, 1200);
+        }
+    
+        // Mobile menu
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('open');
+            document.getElementById('mobileOverlay').classList.toggle('open');
+            document.body.style.overflow = document.getElementById('mobileMenu').classList.contains('open') ? 'hidden' : '';
+        }
+    </script>
+</body>
+</html>
